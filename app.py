@@ -1,5 +1,8 @@
 import streamlit as st
 
-name = st.text_input("What is your name?")
+name = st.chat_input("What is your name?")
 
-st.write(f'Nice to meet you '+name)
+if name == True:
+    st.write('Nice to meet you' + name)
+else:
+    st.write('Invalid')
