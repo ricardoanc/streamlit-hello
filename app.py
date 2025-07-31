@@ -1,22 +1,38 @@
 import streamlit as st
-import random
+import requests
+
+# Title and setup
+st.set_page_config(page_title="Gemma Chatbot", layout="centered")
+st.title("💬 Chat with Gemma 3 (Local via Ollama)")
 
 # Initialize chat history
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-st.title("ChatBot with Streamlit 💬")
+# User input
+user_input = st.text_input("You:", key="user_input")
 
-user_input = st.text_input("You:", "")
-
+# Send message on enter
 if user_input:
-    # Dummy response logic
-    responses = ["Interesting!", "Tell me more!", "Why do you think that?"]
-    bot_response = random.choice(responses)
+    st.session_state.chat_history.append({"role": "user", "content": user_input})
 
-    st.session_state.chat_history.append(("You", user_input))
-    st.session_state.chat_history.append(("Bot", bot_response))
+    try:
+        # Call Ollama API
+        response = requests.post(
+            "http://localhost:11434/api/generate",
+            json={
+                "model": "gemma3:4b",
+                "prompt": user_input
+            }
+        )
+        reply = response.json().get("response", "Hmm… no reply received.")
+        st.session_state.chat_history.append({"role": "bot", "content": reply})
 
-# Display chat
-for speaker, message in st.session_state.chat_history:
-    st.write(f"**{speaker}:** {message}")
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+
+# Display conversation
+for msg in st.session_state.chat_history:
+    emoji = "🧑" if msg["role"] == "user" else "🤖"
+    st.markdown(f"**{emoji} {msg['content']}**")
+    
