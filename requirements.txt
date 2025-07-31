@@ -1,2 +1,4 @@
-streamlite
-random
+streamlit
+pandas
+numpy
+openai
